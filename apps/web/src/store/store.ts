@@ -1,36 +1,17 @@
-import { useMemo } from "react";
-import type { AppProps } from "next/app";
-import { applyMiddleware, createStore, Store } from "redux";
-import thunk from "redux-thunk";
-import { composeWithDevTools } from "redux-devtools-extension";
 import reducers from "./reducers";
+import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 
-let store: Store | undefined;
-
-function initStore(initState: Record<string, unknown>): Store {
-  return createStore(reducers, initState, composeWithDevTools(applyMiddleware(thunk)));
+export function makeStore(preloadedState: any) {
+  return configureStore({
+    preloadedState,
+    reducer: reducers,
+  });
 }
 
-export function initializeStore(preloadState: any = {}) {
-  let _store = store ?? initStore(preloadState);
+export const store = (preloadedState: any) => makeStore(preloadedState);
 
-  if (preloadState && store) {
-    _store = initStore({
-      ...store.getState(),
-      ...preloadState,
-    });
+export type Store = ReturnType<typeof store>;
+export type AppState = ReturnType<Store["getState"]>;
+export type AppDispatch = Store["dispatch"];
 
-    store = undefined;
-  }
-
-  if (typeof window === "undefined") return _store;
-  if (!store) store = _store;
-
-  return _store;
-}
-
-export function useStore(initState: AppProps) {
-  const store = useMemo(() => initializeStore(initState), [initState]);
-
-  return store;
-}
+export type AppThunk<ReturnType> = ThunkAction<ReturnType, AppState, unknown, Action<string>>;

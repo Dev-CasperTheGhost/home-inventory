@@ -13,7 +13,7 @@ import "css/nprogress.scss";
 import "css/table.scss";
 import "css/index.scss";
 
-import { useStore } from "../store/store";
+import { store } from "../store/store";
 import { RateLimitedModal } from "@components/modals/RateLimited";
 import { getTheme, setThemeClass } from "@lib/theme";
 
@@ -28,8 +28,6 @@ const toastStyles: React.CSSProperties = {
 };
 
 const App: NextPage<AppProps> = ({ Component, pageProps }) => {
-  const store = useStore(pageProps?.initialReduxState);
-
   React.useEffect(() => {
     function startHandler() {
       NProgress.start();
@@ -71,7 +69,7 @@ const App: NextPage<AppProps> = ({ Component, pageProps }) => {
         }}
       />
 
-      <ReduxProvider store={store}>
+      <ReduxProvider store={store(pageProps.initialReduxState)}>
         <Component {...pageProps} />
       </ReduxProvider>
 
